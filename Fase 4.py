@@ -26,26 +26,20 @@ logging.basicConfig(
 class ClienteError(Exception):
     pass
 
-
 class ServicioError(Exception):
     pass
-
 
 class ReservaError(Exception):
     pass
 
-
 # =====================================================
 # CLASE ABSTRACTA PERSONA
 # =====================================================
-
 class Persona(ABC):
 
     @abstractmethod
     def mostrar_info(self):
         pass
-
-
 # =====================================================
 # CLIENTE
 # =====================================================
@@ -93,7 +87,6 @@ class Cliente(Persona):
     def mostrar_info(self):
         return f"{self.nombre} - {self.identificacion}"
 
-
 # =====================================================
 # SERVICIO ABSTRACTO
 # =====================================================
@@ -118,7 +111,6 @@ class Servicio(ABC):
     def descripcion(self):
         pass
 
-
 # =====================================================
 # SERVICIOS ESPECIFICOS
 # =====================================================
@@ -131,7 +123,6 @@ class ReservaSala(Servicio):
     def descripcion(self):
         return "Reserva de Sala"
 
-
 class AlquilerEquipos(Servicio):
 
     def calcular_costo(self, horas):
@@ -140,7 +131,6 @@ class AlquilerEquipos(Servicio):
     def descripcion(self):
         return "Alquiler de Equipos"
 
-
 class AsesoriaEspecializada(Servicio):
 
     def calcular_costo(self, horas):
@@ -148,7 +138,6 @@ class AsesoriaEspecializada(Servicio):
 
     def descripcion(self):
         return "Asesoría Especializada"
-
 
 # =====================================================
 # RESERVA
@@ -175,16 +164,13 @@ class Reserva:
         self.estado = "Cancelada"
 
     def calcular_total(self, descuento=0):
-
         total = self.servicio.calcular_costo(
             self.horas
         )
-
         if descuento > 0:
             total -= total * descuento / 100
 
         return round(total, 2)
-
 
 # =====================================================
 # LISTAS EN MEMORIA
@@ -201,7 +187,6 @@ reservas = []
 class Aplicacion:
 
     def __init__(self, ventana):
-
         self.ventana = ventana
 
         self.ventana.title(
@@ -230,7 +215,6 @@ class Aplicacion:
         )
 
         # Archivo
-
         menu_archivo = tk.Menu(
             barra_menu,
             tearoff=0
@@ -271,7 +255,6 @@ class Aplicacion:
         )
 
         # Ayuda
-
         menu_ayuda = tk.Menu(
             barra_menu,
             tearoff=0
@@ -340,7 +323,6 @@ class Aplicacion:
     # =================================================
 
     def crear_tab_clientes(self):
-
         tk.Label(
             self.tab_clientes,
             text="Nombre"
@@ -446,7 +428,6 @@ class Aplicacion:
     def registrar_cliente(self):
 
         try:
-
             cliente = Cliente(
                 self.nombre_cliente.get(),
                 self.id_cliente.get(),
@@ -454,7 +435,6 @@ class Aplicacion:
             )
 
         except Exception as e:
-
             logging.error(str(e))
 
             messagebox.showerror(
@@ -496,7 +476,6 @@ class Aplicacion:
     # =================================================
 
     def crear_tab_servicios(self):
-
         tk.Label(
             self.tab_servicios,
             text="Nombre del Servicio"
@@ -608,7 +587,6 @@ class Aplicacion:
     def registrar_servicio(self):
 
         try:
-
             try:
                 tarifa = float(
                     self.tarifa_servicio.get()
@@ -622,45 +600,37 @@ class Aplicacion:
             tipo = self.tipo_servicio.get()
 
             if tipo == "Sala":
-
                 servicio = ReservaSala(
                     self.nombre_servicio.get(),
                     tarifa
                 )
 
             elif tipo == "Equipos":
-
                 servicio = AlquilerEquipos(
                     self.nombre_servicio.get(),
                     tarifa
                 )
 
             elif tipo == "Asesoria":
-
                 servicio = AsesoriaEspecializada(
                     self.nombre_servicio.get(),
                     tarifa
                 )
 
             else:
-
                 raise ServicioError(
                     "Seleccione un tipo válido"
                 )
 
         except Exception as e:
-
             logging.error(str(e))
-
             messagebox.showerror(
                 "Error",
                 str(e)
             )
 
         else:
-
             servicios.append(servicio)
-
             self.tv_servicios.insert(
                 "",
                 tk.END,
@@ -690,7 +660,6 @@ class Aplicacion:
     # =================================================
 
     def crear_tab_reservas(self):
-
         tk.Label(
             self.tab_reservas,
             text="Cliente"
@@ -813,7 +782,6 @@ class Aplicacion:
     def crear_reserva(self):
 
         try:
-
             if self.cmb_cliente.current() == -1:
                 raise ReservaError(
                     "Seleccione un cliente"
@@ -843,7 +811,6 @@ class Aplicacion:
             )
 
         except Exception as e:
-
             logging.error(str(e))
 
             messagebox.showerror(
@@ -852,11 +819,8 @@ class Aplicacion:
             )
 
         else:
-
             reserva.confirmar()
-
             reservas.append(reserva)
-
             self.tv_reservas.insert(
                 "",
                 tk.END,
@@ -884,20 +848,16 @@ class Aplicacion:
             )
 
     def cancelar_reserva(self):
-
         seleccionado = self.tv_reservas.selection()
 
         if not seleccionado:
-
             messagebox.showwarning(
                 "Aviso",
                 "Seleccione una reserva"
             )
 
             return
-
         item = seleccionado[0]
-
         valores = self.tv_reservas.item(
             item,
             "values"
@@ -931,13 +891,11 @@ class Aplicacion:
     def actualizar_combos(self):
 
         if hasattr(self, "cmb_cliente"):
-
             self.cmb_cliente["values"] = [
                 c.nombre for c in clientes
             ]
 
         if hasattr(self, "cmb_servicio"):
-
             self.cmb_servicio["values"] = [
                 s.nombre for s in servicios
             ]
@@ -996,7 +954,6 @@ class Aplicacion:
     def cargar_datos_prueba(self):
 
         try:
-
             c1 = Cliente(
                 "Juan Perez",
                 "12345",
@@ -1092,7 +1049,6 @@ class Aplicacion:
             )
 
         except Exception as e:
-
             logging.error(
                 str(e)
             )
@@ -1100,10 +1056,8 @@ class Aplicacion:
     # =================================================
     # FINALIZAR CONSTRUCCIÓN
     # =================================================
-
         self.crear_tab_servicios()
         self.crear_tab_reservas()
-
 
 # =====================================================
 # MAIN
