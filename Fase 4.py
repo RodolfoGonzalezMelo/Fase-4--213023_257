@@ -1,11 +1,17 @@
+# -------------------------------
+# Fase 4 - Sistema Integral de Gestión de Clientes, Servicios y Reservas
+# Autor: Rodolfo González Melo
+# Curso: Programación - UNAD
+# -------------------------------
+ 
 from abc import ABC, abstractmethod
 import tkinter as tk
 from tkinter import ttk, messagebox
 import logging
 
-# ==================================================
-# CONFIGURACION LOG
-# ==================================================
+# =====================================================
+# CONFIGURACION DEL LOG
+# =====================================================
 
 logging.basicConfig(
     filename="eventos.log",
@@ -13,22 +19,25 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-# ==================================================
-# EXCEPCIONES
-# ==================================================
+# =====================================================
+# EXCEPCIONES PERSONALIZADAS
+# =====================================================
 
 class ClienteError(Exception):
     pass
 
+
 class ServicioError(Exception):
     pass
+
 
 class ReservaError(Exception):
     pass
 
-# ==================================================
-# CLASE ABSTRACTA
-# ==================================================
+
+# =====================================================
+# CLASE ABSTRACTA PERSONA
+# =====================================================
 
 class Persona(ABC):
 
@@ -36,9 +45,10 @@ class Persona(ABC):
     def mostrar_info(self):
         pass
 
-# ==================================================
+
+# =====================================================
 # CLIENTE
-# ==================================================
+# =====================================================
 
 class Cliente(Persona):
 
@@ -46,7 +56,7 @@ class Cliente(Persona):
 
         if not nombre.strip():
             raise ClienteError(
-                "El nombre no puede estar vacío"
+                "El nombre es obligatorio"
             )
 
         if not identificacion.isdigit():
@@ -56,12 +66,12 @@ class Cliente(Persona):
 
         if len(identificacion) < 5:
             raise ClienteError(
-                "Identificación demasiado corta"
+                "La identificación debe tener mínimo 5 dígitos"
             )
 
         if "@" not in correo:
             raise ClienteError(
-                "Correo inválido"
+                "Correo electrónico inválido"
             )
 
         self.__nombre = nombre
@@ -83,9 +93,10 @@ class Cliente(Persona):
     def mostrar_info(self):
         return f"{self.nombre} - {self.identificacion}"
 
-# ==================================================
-# SERVICIOS
-# ==================================================
+
+# =====================================================
+# SERVICIO ABSTRACTO
+# =====================================================
 
 class Servicio(ABC):
 
@@ -93,7 +104,7 @@ class Servicio(ABC):
 
         if tarifa <= 0:
             raise ServicioError(
-                "La tarifa debe ser mayor que cero"
+                "La tarifa debe ser mayor a cero"
             )
 
         self.nombre = nombre
@@ -107,6 +118,11 @@ class Servicio(ABC):
     def descripcion(self):
         pass
 
+
+# =====================================================
+# SERVICIOS ESPECIFICOS
+# =====================================================
+
 class ReservaSala(Servicio):
 
     def calcular_costo(self, horas):
@@ -114,6 +130,7 @@ class ReservaSala(Servicio):
 
     def descripcion(self):
         return "Reserva de Sala"
+
 
 class AlquilerEquipos(Servicio):
 
@@ -123,6 +140,7 @@ class AlquilerEquipos(Servicio):
     def descripcion(self):
         return "Alquiler de Equipos"
 
+
 class AsesoriaEspecializada(Servicio):
 
     def calcular_costo(self, horas):
@@ -131,9 +149,10 @@ class AsesoriaEspecializada(Servicio):
     def descripcion(self):
         return "Asesoría Especializada"
 
-# ==================================================
+
+# =====================================================
 # RESERVA
-# ==================================================
+# =====================================================
 
 class Reserva:
 
@@ -157,24 +176,27 @@ class Reserva:
 
     def calcular_total(self, descuento=0):
 
-        valor = self.servicio.calcular_costo(self.horas)
+        total = self.servicio.calcular_costo(
+            self.horas
+        )
 
         if descuento > 0:
-            valor -= valor * descuento / 100
+            total -= total * descuento / 100
 
-        return round(valor, 2)
+        return round(total, 2)
 
-# ==================================================
-# DATOS EN MEMORIA
-# ==================================================
+
+# =====================================================
+# LISTAS EN MEMORIA
+# =====================================================
 
 clientes = []
 servicios = []
 reservas = []
 
-# ==================================================
-# INTERFAZ
-# ==================================================
+# =====================================================
+# INTERFAZ GRAFICA
+# =====================================================
 
 class Aplicacion:
 
@@ -187,83 +209,88 @@ class Aplicacion:
         )
 
         self.ventana.geometry(
-            "1100x700"
+            "1200x700"
         )
 
         self.ventana.resizable(
             False,
             False
         )
+
         # ==========================================
-# BARRA DE MENÚ
-# ==========================================
+        # MENU PRINCIPAL
+        # ==========================================
 
-barra_menu = tk.Menu(self.ventana)
+        barra_menu = tk.Menu(
+            self.ventana
+        )
 
-self.ventana.config(menu=barra_menu)
+        self.ventana.config(
+            menu=barra_menu
+        )
 
-# MENÚ ARCHIVO
+        # Archivo
 
-menu_archivo = tk.Menu(
-    barra_menu,
-    tearoff=0
-)
+        menu_archivo = tk.Menu(
+            barra_menu,
+            tearoff=0
+        )
 
-barra_menu.add_cascade(
-    label="Archivo",
-    menu=menu_archivo
-)
+        barra_menu.add_cascade(
+            label="Archivo",
+            menu=menu_archivo
+        )
 
-menu_archivo.add_command(
-    label="Salir",
-    command=self.salir_aplicacion
-)
+        menu_archivo.add_command(
+            label="Salir",
+            command=self.salir_aplicacion
+        )
 
-# MENÚ HERRAMIENTAS
+        # Herramientas
 
-menu_herramientas = tk.Menu(
-    barra_menu,
-    tearoff=0
-)
+        menu_herramientas = tk.Menu(
+            barra_menu,
+            tearoff=0
+        )
 
-barra_menu.add_cascade(
-    label="Herramientas",
-    menu=menu_herramientas
-)
+        barra_menu.add_cascade(
+            label="Herramientas",
+            menu=menu_herramientas
+        )
 
-menu_herramientas.add_command(
-    label="Cargar Datos de Prueba",
-    command=self.cargar_datos_prueba
-)
+        menu_herramientas.add_command(
+            label="Cargar Datos de Prueba",
+            command=self.cargar_datos_prueba
+        )
 
-menu_herramientas.add_separator()
+        menu_herramientas.add_separator()
 
-menu_herramientas.add_command(
-    label="Limpiar Todo",
-    command=self.limpiar_datos
-)
+        menu_herramientas.add_command(
+            label="Limpiar Todo",
+            command=self.limpiar_datos
+        )
 
-# MENÚ AYUDA
+        # Ayuda
 
-menu_ayuda = tk.Menu(
-    barra_menu,
-    tearoff=0
-)
+        menu_ayuda = tk.Menu(
+            barra_menu,
+            tearoff=0
+        )
 
-barra_menu.add_cascade(
-    label="Ayuda",
-    menu=menu_ayuda
-)
+        barra_menu.add_cascade(
+            label="Ayuda",
+            menu=menu_ayuda
+        )
 
-menu_ayuda.add_command(
-    label="Acerca de",
-    command=self.acerca_de
-)
+        menu_ayuda.add_command(
+            label="Acerca de",
+            command=self.acerca_de
+        )
 
         titulo = tk.Label(
-            ventana,
-            text="SOFTWARE FJ - GESTIÓN DE CLIENTES, SERVICIOS Y RESERVAS",
-            font=("Arial", 16, "bold")
+            self.ventana,
+            text="SOFTWARE FJ - SISTEMA DE GESTION",
+            font=("Arial", 18, "bold")
         )
 
         titulo.pack(
@@ -271,7 +298,7 @@ menu_ayuda.add_command(
         )
 
         self.notebook = ttk.Notebook(
-            ventana
+            self.ventana
         )
 
         self.notebook.pack(
@@ -306,23 +333,27 @@ menu_ayuda.add_command(
             text="Reservas"
         )
 
-        self.crear_pestana_clientes()
-        self.crear_pestana_servicios()
-        self.crear_pestana_reservas()
+        self.crear_tab_clientes()
 
-    # ==============================================
+    # =================================================
     # CLIENTES
-    # ==============================================
+    # =================================================
 
-    def crear_pestana_clientes(self):
+    def crear_tab_clientes(self):
 
         tk.Label(
             self.tab_clientes,
             text="Nombre"
-        ).grid(row=0, column=0, padx=5, pady=5)
+        ).grid(
+            row=0,
+            column=0,
+            padx=10,
+            pady=10
+        )
 
         self.nombre_cliente = tk.Entry(
-            self.tab_clientes
+            self.tab_clientes,
+            width=35
         )
 
         self.nombre_cliente.grid(
@@ -333,10 +364,14 @@ menu_ayuda.add_command(
         tk.Label(
             self.tab_clientes,
             text="Identificación"
-        ).grid(row=1, column=0)
+        ).grid(
+            row=1,
+            column=0
+        )
 
         self.id_cliente = tk.Entry(
-            self.tab_clientes
+            self.tab_clientes,
+            width=35
         )
 
         self.id_cliente.grid(
@@ -347,10 +382,14 @@ menu_ayuda.add_command(
         tk.Label(
             self.tab_clientes,
             text="Correo"
-        ).grid(row=2, column=0)
+        ).grid(
+            row=2,
+            column=0
+        )
 
         self.correo_cliente = tk.Entry(
-            self.tab_clientes
+            self.tab_clientes,
+            width=35
         )
 
         self.correo_cliente.grid(
@@ -364,14 +403,20 @@ menu_ayuda.add_command(
             bg="green",
             fg="white",
             command=self.registrar_cliente
-        ).grid(row=3,
-               column=0,
-               columnspan=2,
-               pady=10)
+        ).grid(
+            row=3,
+            column=0,
+            columnspan=2,
+            pady=10
+        )
 
         self.tv_clientes = ttk.Treeview(
             self.tab_clientes,
-            columns=("nombre", "id", "correo"),
+            columns=(
+                "nombre",
+                "id",
+                "correo"
+            ),
             show="headings",
             height=15
         )
@@ -395,9 +440,9 @@ menu_ayuda.add_command(
             row=5,
             column=0,
             columnspan=4,
-            padx=10
+            padx=10,
+            pady=20
         )
-
     def registrar_cliente(self):
 
         try:
@@ -431,34 +476,40 @@ menu_ayuda.add_command(
                 )
             )
 
-            logging.info(
-                "Cliente registrado correctamente"
-            )
-
             self.actualizar_combos()
 
             self.nombre_cliente.delete(0, tk.END)
             self.id_cliente.delete(0, tk.END)
             self.correo_cliente.delete(0, tk.END)
 
-            messagebox.showinfo(
-                "Correcto",
+            logging.info(
                 "Cliente registrado"
             )
 
-    # ==============================================
-    # SERVICIOS
-    # ==============================================
+            messagebox.showinfo(
+                "Correcto",
+                "Cliente registrado correctamente"
+            )
 
-    def crear_pestana_servicios(self):
+    # =================================================
+    # SERVICIOS
+    # =================================================
+
+    def crear_tab_servicios(self):
 
         tk.Label(
             self.tab_servicios,
-            text="Nombre Servicio"
-        ).grid(row=0, column=0)
+            text="Nombre del Servicio"
+        ).grid(
+            row=0,
+            column=0,
+            padx=10,
+            pady=10
+        )
 
         self.nombre_servicio = tk.Entry(
-            self.tab_servicios
+            self.tab_servicios,
+            width=35
         )
 
         self.nombre_servicio.grid(
@@ -469,10 +520,14 @@ menu_ayuda.add_command(
         tk.Label(
             self.tab_servicios,
             text="Tarifa"
-        ).grid(row=1, column=0)
+        ).grid(
+            row=1,
+            column=0
+        )
 
         self.tarifa_servicio = tk.Entry(
-            self.tab_servicios
+            self.tab_servicios,
+            width=35
         )
 
         self.tarifa_servicio.grid(
@@ -483,7 +538,10 @@ menu_ayuda.add_command(
         tk.Label(
             self.tab_servicios,
             text="Tipo"
-        ).grid(row=2, column=0)
+        ).grid(
+            row=2,
+            column=0
+        )
 
         self.tipo_servicio = ttk.Combobox(
             self.tab_servicios,
@@ -491,7 +549,8 @@ menu_ayuda.add_command(
                 "Sala",
                 "Equipos",
                 "Asesoria"
-            ]
+            ],
+            state="readonly"
         )
 
         self.tipo_servicio.grid(
@@ -501,18 +560,26 @@ menu_ayuda.add_command(
 
         tk.Button(
             self.tab_servicios,
-            text="Crear Servicio",
+            text="Registrar Servicio",
+            bg="blue",
+            fg="white",
             command=self.registrar_servicio
         ).grid(
             row=3,
             column=0,
-            columnspan=2
+            columnspan=2,
+            pady=10
         )
 
         self.tv_servicios = ttk.Treeview(
             self.tab_servicios,
-            columns=("nombre", "tipo", "tarifa"),
-            show="headings"
+            columns=(
+                "nombre",
+                "tipo",
+                "tarifa"
+            ),
+            show="headings",
+            height=15
         )
 
         self.tv_servicios.heading(
@@ -533,7 +600,9 @@ menu_ayuda.add_command(
         self.tv_servicios.grid(
             row=5,
             column=0,
-            columnspan=5
+            columnspan=5,
+            padx=10,
+            pady=20
         )
 
     def registrar_servicio(self):
@@ -553,24 +622,28 @@ menu_ayuda.add_command(
             tipo = self.tipo_servicio.get()
 
             if tipo == "Sala":
+
                 servicio = ReservaSala(
                     self.nombre_servicio.get(),
                     tarifa
                 )
 
             elif tipo == "Equipos":
+
                 servicio = AlquilerEquipos(
                     self.nombre_servicio.get(),
                     tarifa
                 )
 
             elif tipo == "Asesoria":
+
                 servicio = AsesoriaEspecializada(
                     self.nombre_servicio.get(),
                     tarifa
                 )
 
             else:
+
                 raise ServicioError(
                     "Seleccione un tipo válido"
                 )
@@ -594,30 +667,43 @@ menu_ayuda.add_command(
                 values=(
                     servicio.nombre,
                     tipo,
-                    tarifa
+                    servicio.tarifa
                 )
             )
 
             self.actualizar_combos()
+
+            self.nombre_servicio.delete(0, tk.END)
+            self.tarifa_servicio.delete(0, tk.END)
+
+            logging.info(
+                "Servicio registrado"
+            )
 
             messagebox.showinfo(
                 "Correcto",
                 "Servicio registrado"
             )
 
-    # ==============================================
+    # =================================================
     # RESERVAS
-    # ==============================================
+    # =================================================
 
-    def crear_pestana_reservas(self):
+    def crear_tab_reservas(self):
 
         tk.Label(
             self.tab_reservas,
             text="Cliente"
-        ).grid(row=0, column=0)
+        ).grid(
+            row=0,
+            column=0,
+            padx=10,
+            pady=10
+        )
 
         self.cmb_cliente = ttk.Combobox(
-            self.tab_reservas
+            self.tab_reservas,
+            state="readonly"
         )
 
         self.cmb_cliente.grid(
@@ -628,10 +714,14 @@ menu_ayuda.add_command(
         tk.Label(
             self.tab_reservas,
             text="Servicio"
-        ).grid(row=1, column=0)
+        ).grid(
+            row=1,
+            column=0
+        )
 
         self.cmb_servicio = ttk.Combobox(
-            self.tab_reservas
+            self.tab_reservas,
+            state="readonly"
         )
 
         self.cmb_servicio.grid(
@@ -642,26 +732,42 @@ menu_ayuda.add_command(
         tk.Label(
             self.tab_reservas,
             text="Horas"
-        ).grid(row=2, column=0)
+        ).grid(
+            row=2,
+            column=0
+        )
 
-        self.horas = tk.Entry(
+        self.horas_reserva = tk.Entry(
             self.tab_reservas
         )
 
-        self.horas.grid(
+        self.horas_reserva.grid(
             row=2,
             column=1
         )
 
         tk.Button(
             self.tab_reservas,
-            text="Confirmar Reserva",
+            text="Crear Reserva",
             bg="green",
             fg="white",
             command=self.crear_reserva
         ).grid(
             row=3,
-            column=0
+            column=0,
+            pady=10
+        )
+
+        tk.Button(
+            self.tab_reservas,
+            text="Cancelar Reserva",
+            bg="red",
+            fg="white",
+            command=self.cancelar_reserva
+        ).grid(
+            row=3,
+            column=1,
+            pady=10
         )
 
         self.tv_reservas = ttk.Treeview(
@@ -672,23 +778,36 @@ menu_ayuda.add_command(
                 "estado",
                 "valor"
             ),
-            show="headings"
+            show="headings",
+            height=15
         )
 
-        for columna in (
-                "cliente",
-                "servicio",
-                "estado",
-                "valor"):
-            self.tv_reservas.heading(
-                columna,
-                text=columna.upper()
-            )
+        self.tv_reservas.heading(
+            "cliente",
+            text="Cliente"
+        )
+
+        self.tv_reservas.heading(
+            "servicio",
+            text="Servicio"
+        )
+
+        self.tv_reservas.heading(
+            "estado",
+            text="Estado"
+        )
+
+        self.tv_reservas.heading(
+            "valor",
+            text="Valor"
+        )
 
         self.tv_reservas.grid(
             row=5,
             column=0,
-            columnspan=5
+            columnspan=5,
+            padx=10,
+            pady=20
         )
 
     def crear_reserva(self):
@@ -697,16 +816,16 @@ menu_ayuda.add_command(
 
             if self.cmb_cliente.current() == -1:
                 raise ReservaError(
-                    "Seleccione cliente"
+                    "Seleccione un cliente"
                 )
 
             if self.cmb_servicio.current() == -1:
                 raise ReservaError(
-                    "Seleccione servicio"
+                    "Seleccione un servicio"
                 )
 
             horas = int(
-                self.horas.get()
+                self.horas_reserva.get()
             )
 
             cliente = clientes[
@@ -736,9 +855,7 @@ menu_ayuda.add_command(
 
             reserva.confirmar()
 
-            reservas.append(
-                reserva
-            )
+            reservas.append(reserva)
 
             self.tv_reservas.insert(
                 "",
@@ -763,24 +880,234 @@ menu_ayuda.add_command(
         finally:
 
             logging.info(
-                "Proceso reserva finalizado"
+                "Proceso de reserva finalizado"
             )
 
-    # ==============================================
+    def cancelar_reserva(self):
+
+        seleccionado = self.tv_reservas.selection()
+
+        if not seleccionado:
+
+            messagebox.showwarning(
+                "Aviso",
+                "Seleccione una reserva"
+            )
+
+            return
+
+        item = seleccionado[0]
+
+        valores = self.tv_reservas.item(
+            item,
+            "values"
+        )
+
+        nuevos = (
+            valores[0],
+            valores[1],
+            "Cancelada",
+            valores[3]
+        )
+
+        self.tv_reservas.item(
+            item,
+            values=nuevos
+        )
+
+        logging.info(
+            "Reserva cancelada"
+        )
+
+        messagebox.showinfo(
+            "Correcto",
+            "Reserva cancelada"
+        )
+
+    # =================================================
+    # UTILIDADES
+    # =================================================
 
     def actualizar_combos(self):
 
-        self.cmb_cliente["values"] = [
-            c.nombre for c in clientes
-        ]
+        if hasattr(self, "cmb_cliente"):
 
-        self.cmb_servicio["values"] = [
-            s.nombre for s in servicios
-        ]
+            self.cmb_cliente["values"] = [
+                c.nombre for c in clientes
+            ]
 
-# ==================================================
+        if hasattr(self, "cmb_servicio"):
+
+            self.cmb_servicio["values"] = [
+                s.nombre for s in servicios
+            ]
+
+    def salir_aplicacion(self):
+
+        if messagebox.askyesno(
+            "Salir",
+            "¿Desea salir de la aplicación?"
+        ):
+
+            logging.info(
+                "Aplicación cerrada"
+            )
+
+            self.ventana.destroy()
+
+    def acerca_de(self):
+
+        messagebox.showinfo(
+            "Acerca de",
+            "SOFTWARE FJ\n\n"
+            "Sistema Integral de Gestión\n"
+            "Clientes - Servicios - Reservas\n"
+            "Autor: Rodolfo González Melo\n"
+            "Curso: Programación - UNAD\n"
+            "Desarrollado en Python con Tkinter\n\n"
+        )
+
+    def limpiar_datos(self):
+
+        clientes.clear()
+        servicios.clear()
+        reservas.clear()
+
+        for item in self.tv_clientes.get_children():
+            self.tv_clientes.delete(item)
+
+        for item in self.tv_servicios.get_children():
+            self.tv_servicios.delete(item)
+
+        for item in self.tv_reservas.get_children():
+            self.tv_reservas.delete(item)
+
+        self.actualizar_combos()
+
+        logging.info(
+            "Información eliminada"
+        )
+
+        messagebox.showinfo(
+            "Correcto",
+            "Datos eliminados"
+        )
+
+    def cargar_datos_prueba(self):
+
+        try:
+
+            c1 = Cliente(
+                "Juan Perez",
+                "12345",
+                "juan@gmail.com"
+            )
+
+            c2 = Cliente(
+                "Maria Gomez",
+                "54321",
+                "maria@gmail.com"
+            )
+
+            clientes.extend([c1, c2])
+
+            s1 = ReservaSala(
+                "Sala Ejecutiva",
+                50000
+            )
+
+            s2 = AlquilerEquipos(
+                "Portatiles",
+                25000
+            )
+
+            s3 = AsesoriaEspecializada(
+                "Redes",
+                80000
+            )
+
+            servicios.extend(
+                [s1, s2, s3]
+            )
+
+            self.tv_clientes.insert(
+                "",
+                tk.END,
+                values=(
+                    c1.nombre,
+                    c1.identificacion,
+                    c1.correo
+                )
+            )
+
+            self.tv_clientes.insert(
+                "",
+                tk.END,
+                values=(
+                    c2.nombre,
+                    c2.identificacion,
+                    c2.correo
+                )
+            )
+
+            self.tv_servicios.insert(
+                "",
+                tk.END,
+                values=(
+                    s1.nombre,
+                    "Sala",
+                    s1.tarifa
+                )
+            )
+
+            self.tv_servicios.insert(
+                "",
+                tk.END,
+                values=(
+                    s2.nombre,
+                    "Equipos",
+                    s2.tarifa
+                )
+            )
+
+            self.tv_servicios.insert(
+                "",
+                tk.END,
+                values=(
+                    s3.nombre,
+                    "Asesoria",
+                    s3.tarifa
+                )
+            )
+
+            self.actualizar_combos()
+
+            logging.info(
+                "Datos de prueba cargados"
+            )
+
+            messagebox.showinfo(
+                "Correcto",
+                "Datos de prueba cargados"
+            )
+
+        except Exception as e:
+
+            logging.error(
+                str(e)
+            )
+
+    # =================================================
+    # FINALIZAR CONSTRUCCIÓN
+    # =================================================
+
+        self.crear_tab_servicios()
+        self.crear_tab_reservas()
+
+
+# =====================================================
 # MAIN
-# ==================================================
+# =====================================================
 
 if __name__ == "__main__":
 
@@ -792,8 +1119,11 @@ if __name__ == "__main__":
 
     app = Aplicacion(root)
 
+    app.crear_tab_servicios()
+    app.crear_tab_reservas()
+
     root.mainloop()
 
     logging.info(
         "Aplicación finalizada"
-    )
+    )        
